@@ -1,6 +1,6 @@
 {
   "name": "action.buildinpublic.so",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "GitHub Action to export commit data to buildinpublic.so",
   "main": "dist/index.js",
   "scripts": {
@@ -13,7 +13,12 @@
     "type": "git",
     "url": "https://github.com/eddspire/action.buildinpublic.so"
   },
-  "keywords": ["github-action", "buildinpublic.so", "commits", "automation"],
+  "keywords": [
+    "github-action",
+    "buildinpublic.so",
+    "commits",
+    "automation"
+  ],
   "author": "buildinpublic.so",
   "license": "MIT",
   "bugs": {
