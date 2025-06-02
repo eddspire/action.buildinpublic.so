@@ -1,0 +1,20 @@
+name: 'buildinpublic.so Action Export'
+description: 'Automatically export your commit history to buildinpublic.so for instant, beautiful developer cards'
+author: 'buildinpublic.so'
+
+branding:
+  icon: 'git-commit'
+  color: 'blue'
+
+inputs:
+  api-token:
+    description: 'buildinpublic.so API token from your dashboard'
+    required: true
+
+outputs:
+  commits:
+    description: 'Number of commits processed'
+
+runs:
+  using: 'node18'
+  main: 'dist/index.js' 
