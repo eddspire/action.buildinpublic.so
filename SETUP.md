@@ -20,11 +20,11 @@ git add .
 git commit -m "Initial commit: GitHub Action for buildinpublic.so export"
 
 # Create repository on GitHub (requires GitHub CLI)
-gh repo create buildinpublic/action.buildinpublic.so --public --description "GitHub Action to export commits to buildinpublic.so for instant developer cards"
+gh repo create eddspire/action.buildinpublic.so --public --description "GitHub Action to export commits to buildinpublic.so for instant developer cards"
 
 # Set remote and push
 git branch -M main
-git remote add origin https://github.com/buildinpublic/action.buildinpublic.so.git
+git remote add origin https://github.com/eddspire/action.buildinpublic.so.git
 git push -u origin main
 ```
 
@@ -65,7 +65,7 @@ After the action is built and tested:
 - [ ] Repository is public and accessible
 - [ ] All required files are present (README, LICENSE, action.yml, etc.)
 - [ ] CI workflow passes
-- [ ] Action can be referenced as `buildinpublic/action.buildinpublic.so@v1`
+- [ ] Action can be referenced as `eddspire/action.buildinpublic.so@v1`
 - [ ] Repository appears in GitHub Marketplace
 
 ## 5. Next Steps

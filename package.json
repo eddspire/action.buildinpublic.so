@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/action.buildinpublic.so"
+    "url": "https://github.com/eddspire/action.buildinpublic.so"
   },
   "keywords": ["github-action", "buildinpublic.so", "commits", "automation"],
   "author": "buildinpublic.so",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/buildinpublic/action.buildinpublic.so/issues"
+    "url": "https://github.com/eddspire/action.buildinpublic.so/issues"
   },
-  "homepage": "https://github.com/buildinpublic/action.buildinpublic.so#readme",
+  "homepage": "https://github.com/eddspire/action.buildinpublic.so#readme",
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@actions/github": "^6.0.0"
