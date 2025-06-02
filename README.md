@@ -1,7 +1,7 @@
 # Turn Every Commit Into Your Success Story
 
 [![GitHub marketplace](https://img.shields.io/badge/marketplace-buildinpublic.so--action--export-blue?logo=github)](https://github.com/marketplace/actions/buildinpublic.so-action-export)
-[![CI](https://github.com/action.buildinpublic.so/action.buildinpublic.so/actions/workflows/ci.yml/badge.svg)](https://github.com/action.buildinpublic.so/action.buildinpublic.so/actions/workflows/ci.yml)
+[![CI](https://github.com/eddspire/action.buildinpublic.so/actions/workflows/ci.yml/badge.svg)](https://github.com/eddspire/action.buildinpublic.so/actions/workflows/ci.yml)
 
 **Stop hiding your best stories in git logs.** Every commit is a chapter in your entrepreneurial journey—BuildInPublic.so helps the world read it.
 
@@ -45,8 +45,8 @@ jobs:
   build-in-public:
     runs-on: ubuntu-latest
     steps:
-      - name: Transform commits into stories
-        uses: action.buildinpublic.so/action.buildinpublic.so@v1
+             - name: Transform commits into stories
+         uses: eddspire/action.buildinpublic.so@v1
         with:
           api-token: ${{ secrets.BUILDINPUBLIC_API_TOKEN }}
 ```
@@ -108,7 +108,7 @@ on:
 
 ### Conditional Story Creation
 ```yaml
-- uses: action.buildinpublic.so/action.buildinpublic.so@v1
+- uses: eddspire/action.buildinpublic.so@v1
   if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip-story]')
   with:
     api-token: ${{ secrets.BUILDINPUBLIC_API_TOKEN }}
@@ -131,7 +131,7 @@ on:
 ### **Need Help Building Your Story?**
 We're here for you:
 - 📚 [Complete Documentation](https://buildinpublic.so/docs)
-- 🐛 [Report Issues](https://github.com/action.buildinpublic.so/action.buildinpublic.so/issues)
+- 🐛 [Report Issues](https://github.com/eddspire/action.buildinpublic.so/issues)
 - 💬 [Join Our Community](https://discord.gg/buildinpublic)
 
 ---
