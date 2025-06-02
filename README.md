@@ -116,7 +116,7 @@ on:
 
 ---
 
-## 🔧 **When Things Don't Work (They Always Do, But Just In Case)**
+## 🔧 **When Things Don't Work**
 
 ### **Action Not Running?**
 - Double-check `.github/workflows/` path
