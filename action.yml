@@ -16,5 +16,5 @@ outputs:
     description: 'Number of commits processed'
 
 runs:
-  using: 'node18'
+  using: 'node20'
   main: 'dist/index.js' 
