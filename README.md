@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Transform commits into stories
-        uses: eddspire/action.buildinpublic.so@v1
+        uses: eddspire/action.buildinpublic.so@v1.0.2
         with:
           api-token: ${{ secrets.BUILDINPUBLIC_API_TOKEN }}
 ```
@@ -108,7 +108,7 @@ on:
 
 ### Conditional Story Creation
 ```yaml
-- uses: eddspire/action.buildinpublic.so@v1
+- uses: eddspire/action.buildinpublic.so@v1.0.2
   if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip-story]')
   with:
     api-token: ${{ secrets.BUILDINPUBLIC_API_TOKEN }}

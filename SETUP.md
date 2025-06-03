@@ -65,7 +65,7 @@ After the action is built and tested:
 - [ ] Repository is public and accessible
 - [ ] All required files are present (README, LICENSE, action.yml, etc.)
 - [ ] CI workflow passes
-- [ ] Action can be referenced as `eddspire/action.buildinpublic.so@v1`
+- [ ] Action can be referenced as `eddspire/action.buildinpublic.so@v1.0.2`
 - [ ] Repository appears in GitHub Marketplace
 
 ## 5. Next Steps
