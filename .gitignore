@@ -7,6 +7,7 @@ yarn-error.log*
 # Build outputs - commit only the bundled entry file, not the rest of dist
 dist/*
 !dist/index.js
+!dist/sourcemap-register.js
 
 # TypeScript intermediate build output
 lib/
