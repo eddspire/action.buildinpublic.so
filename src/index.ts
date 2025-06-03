@@ -65,7 +65,7 @@ export async function run(): Promise<void> {
             name: commit.author?.name || 'Unknown',
             email: commit.author?.email || 'unknown@example.com',
           },
-          timestamp: commit.timestamp || new Date().toISOString(),
+          timestamp: new Date(commit.timestamp || Date.now()).toISOString(),
           url: commit.url?.startsWith('https://') ? commit.url : `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commit.id}`,
         };
       })
