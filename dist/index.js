@@ -29995,6 +29995,9 @@ async function run() {
                 core.warning(`Skipping malformed commit: ${JSON.stringify(commit)}`);
                 return null;
             }
+            const addedFiles = commit.added || [];
+            const modifiedFiles = commit.modified || [];
+            const removedFiles = commit.removed || [];
             return {
                 id: commit.id,
                 // Trim to server-side hard limit to prevent 413 / 422 responses
@@ -30005,6 +30008,12 @@ async function run() {
                 },
                 timestamp: new Date(commit.timestamp || Date.now()).toISOString(),
                 url: commit.url?.startsWith('https://') ? commit.url : `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commit.id}`,
+                files: {
+                    added: addedFiles,
+                    modified: modifiedFiles,
+                    removed: removedFiles,
+                    total_changes: addedFiles.length + modifiedFiles.length + removedFiles.length,
+                },
             };
         })
             .filter((c) => c !== null);

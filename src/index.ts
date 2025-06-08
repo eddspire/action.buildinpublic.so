@@ -8,6 +8,12 @@ interface Commit {
   author: { name: string; email: string };
   timestamp: string;
   url: string;
+  files: {
+    added: string[];
+    modified: string[];
+    removed: string[];
+    total_changes: number;
+  };
 }
 
 /**
@@ -57,6 +63,10 @@ export async function run(): Promise<void> {
           core.warning(`Skipping malformed commit: ${JSON.stringify(commit)}`);
           return null;
         }
+        const addedFiles = commit.added || [];
+        const modifiedFiles = commit.modified || [];
+        const removedFiles = commit.removed || [];
+        
         return {
           id: commit.id,
           // Trim to server-side hard limit to prevent 413 / 422 responses
@@ -67,6 +77,12 @@ export async function run(): Promise<void> {
           },
           timestamp: new Date(commit.timestamp || Date.now()).toISOString(),
           url: commit.url?.startsWith('https://') ? commit.url : `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commit.id}`,
+          files: {
+            added: addedFiles,
+            modified: modifiedFiles,
+            removed: removedFiles,
+            total_changes: addedFiles.length + modifiedFiles.length + removedFiles.length,
+          },
         };
       })
       .filter((c: Commit | null): c is Commit => c !== null);
