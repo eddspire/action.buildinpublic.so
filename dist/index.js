@@ -29993,46 +29993,56 @@ async function run() {
         core.info(`🔍 Full push payload structure: ${JSON.stringify(payload, null, 2)}`);
         // Start timing for accurate execution time measurement
         const startTime = Date.now();
+        // Get GitHub token for API calls (required since GitHub removed file changes from push payloads in Actions)
+        const githubToken = core.getInput('github-token') || process.env.GITHUB_TOKEN;
+        const octokit = githubToken ? github.getOctokit(githubToken) : null;
         // Format commits for buildinpublic.so API with validation
-        const formattedCommits = commits.map((commit) => {
+        const formattedCommits = await Promise.all(commits.map(async (commit) => {
             if (!commit?.id || !commit?.message || !commit?.author) {
                 core.warning(`Skipping malformed commit: ${JSON.stringify(commit)}`);
                 return null;
             }
-            // Debug: Log what we actually get in the push payload
-            core.info(`🔍 Commit ${commit.id.substring(0, 7)} payload structure:`);
-            core.info(`  - added: ${JSON.stringify(commit.added || [])}`);
-            core.info(`  - modified: ${JSON.stringify(commit.modified || [])}`);
-            core.info(`  - removed: ${JSON.stringify(commit.removed || [])}`);
-            const addedFiles = commit.added || [];
-            const modifiedFiles = commit.modified || [];
-            const removedFiles = commit.removed || [];
-            const totalChanges = addedFiles.length + modifiedFiles.length + removedFiles.length;
-            if (totalChanges === 0) {
-                core.warning(`⚠️ No file changes found in push payload for commit ${commit.id.substring(0, 7)}`);
-                core.warning(`This suggests the push payload is missing file change data that should be there.`);
+            // GitHub intentionally removed file changes from push payloads in Actions (Oct 2019)
+            // We must fetch them via API as GitHub intended
+            core.info(`🔍 Processing commit ${commit.id.substring(0, 7)}: ${commit.message}`);
+            let addedFiles = [];
+            let modifiedFiles = [];
+            let removedFiles = [];
+            if (octokit) {
+                try {
+                    core.info(`📡 Fetching file changes for commit ${commit.id.substring(0, 7)} via GitHub API`);
+                    const commitDetails = await octokit.rest.repos.getCommit({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        ref: commit.id
+                    });
+                    addedFiles = commitDetails.data.files?.filter(f => f.status === 'added').map(f => f.filename) || [];
+                    modifiedFiles = commitDetails.data.files?.filter(f => f.status === 'modified').map(f => f.filename) || [];
+                    removedFiles = commitDetails.data.files?.filter(f => f.status === 'removed').map(f => f.filename) || [];
+                    core.info(`✅ Found ${addedFiles.length} added, ${modifiedFiles.length} modified, ${removedFiles.length} removed files`);
+                }
+                catch (error) {
+                    core.warning(`Failed to fetch commit details for ${commit.id}: ${error}`);
+                    core.warning('Proceeding without file change information');
+                }
             }
             else {
-                core.info(`✅ Found ${totalChanges} file changes in push payload for commit ${commit.id.substring(0, 7)}`);
+                core.warning('No GitHub token available - cannot fetch file changes');
+                core.warning('File changes will be empty for this commit');
             }
             return {
                 id: commit.id,
-                // Trim to server-side hard limit to prevent 413 / 422 responses
-                message: commit.message.slice(0, 10000),
+                message: commit.message,
                 author: {
-                    name: commit.author?.name || 'Unknown',
-                    email: commit.author?.email || 'unknown@example.com',
+                    name: commit.author.name,
+                    email: commit.author.email
                 },
-                timestamp: new Date(commit.timestamp || Date.now()).toISOString(),
-                url: commit.url?.startsWith('https://') ? commit.url : `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commit.id}`,
-                files: {
-                    added: addedFiles,
-                    modified: modifiedFiles,
-                    removed: removedFiles,
-                    total_changes: totalChanges,
-                },
+                timestamp: commit.timestamp,
+                added: addedFiles,
+                modified: modifiedFiles,
+                removed: removedFiles
             };
-        });
+        }));
         const validCommits = formattedCommits.filter((c) => c !== null);
         // Check if we have any valid commits after filtering
         if (validCommits.length === 0) {
