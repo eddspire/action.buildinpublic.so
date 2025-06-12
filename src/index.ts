@@ -30,7 +30,11 @@ export async function run(): Promise<void> {
     const context = github.context;
     const { payload } = context;
     
+    // Extract branch information from the context
+    const branch = context.ref.replace('refs/heads/', '');
+    
     core.info(`Repository: ${context.repo.owner}/${context.repo.repo}`);
+    core.info(`Branch: ${branch}`);
     core.info(`Event: ${context.eventName}`);
 
     // Bail out early for events that do not contain commit lists
@@ -51,7 +55,7 @@ export async function run(): Promise<void> {
       return;
     }
 
-    core.info(`Found ${commits.length} commits to process`);
+    core.info(`Found ${commits.length} commits to process on branch "${branch}"`);
 
     // Start timing for accurate execution time measurement
     const startTime = Date.now();
@@ -131,10 +135,12 @@ export async function run(): Promise<void> {
     const apiPayload = {
       repo: context.repo.repo,
       owner: context.repo.owner,
+      branch: branch,
       commits: validCommits,
     };
 
     // Send to buildinpublic.so API with retry logic
+    core.info(`📤 Sending ${validCommits.length} commits from branch "${branch}" to buildinpublic.so`);
     await sendToBuildinpublicSo(apiPayload, apiToken, startTime);
 
     // Calculate final execution time for logging
