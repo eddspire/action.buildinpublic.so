@@ -30061,7 +30061,6 @@ async function run() {
         const apiPayload = {
             repo: context.repo.repo,
             owner: context.repo.owner,
-            branch: branch,
             commits: validCommits,
         };
         // Send to buildinpublic.so API with retry logic

@@ -142,7 +142,6 @@ export async function run(): Promise<void> {
     const apiPayload = {
       repo: context.repo.repo,
       owner: context.repo.owner,
-      branch: branch,
       commits: validCommits,
     };
 
