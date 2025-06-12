@@ -1,17 +1,17 @@
 name: 'buildinpublic.so Action Export'
-description: 'Automatically export your commit history to buildinpublic.so for instant, beautiful developer cards'
-author: 'buildinpublic.so'
+description: 'Export your commits to buildinpublic.so to track your building in public journey'
+author: 'eddspire'
 
 branding:
-  icon: 'git-commit'
+  icon: 'upload-cloud'
   color: 'blue'
 
 inputs:
   api-token:
-    description: 'buildinpublic.so API token from your dashboard'
+    description: 'API token for buildinpublic.so'
     required: true
   github-token:
-    description: 'GitHub token for API access'
+    description: 'GitHub token for API access (defaults to GITHUB_TOKEN)'
     required: false
 
 outputs:
