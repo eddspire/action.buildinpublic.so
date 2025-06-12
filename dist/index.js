@@ -29989,40 +29989,31 @@ async function run() {
             return;
         }
         core.info(`Found ${commits.length} commits to process on branch "${branch}"`);
+        // Debug: Log the full push payload structure to understand what we're getting
+        core.info(`🔍 Full push payload structure: ${JSON.stringify(payload, null, 2)}`);
         // Start timing for accurate execution time measurement
         const startTime = Date.now();
-        // Get GitHub token for API calls
-        const githubToken = core.getInput('github-token') || process.env.GITHUB_TOKEN;
-        const octokit = githubToken ? github.getOctokit(githubToken) : null;
         // Format commits for buildinpublic.so API with validation
-        const formattedCommits = await Promise.all(commits.map(async (commit) => {
+        const formattedCommits = commits.map((commit) => {
             if (!commit?.id || !commit?.message || !commit?.author) {
                 core.warning(`Skipping malformed commit: ${JSON.stringify(commit)}`);
                 return null;
             }
-            let addedFiles = commit.added || [];
-            let modifiedFiles = commit.modified || [];
-            let removedFiles = commit.removed || [];
-            // If file changes are empty and we have GitHub token, fetch from API
-            if (addedFiles.length === 0 && modifiedFiles.length === 0 && removedFiles.length === 0 && octokit) {
-                try {
-                    core.info(`📡 Fetching detailed commit info for ${commit.id.substring(0, 7)} from GitHub API`);
-                    const { data: commitData } = await octokit.rest.repos.getCommit({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        ref: commit.id,
-                    });
-                    // Extract file changes from API response
-                    if (commitData.files) {
-                        addedFiles = commitData.files.filter((f) => f.status === 'added').map((f) => f.filename);
-                        modifiedFiles = commitData.files.filter((f) => f.status === 'modified').map((f) => f.filename);
-                        removedFiles = commitData.files.filter((f) => f.status === 'removed').map((f) => f.filename);
-                        core.info(`✅ Found ${addedFiles.length + modifiedFiles.length + removedFiles.length} file changes via API`);
-                    }
-                }
-                catch (error) {
-                    core.warning(`⚠️ Failed to fetch commit details from API: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                }
+            // Debug: Log what we actually get in the push payload
+            core.info(`🔍 Commit ${commit.id.substring(0, 7)} payload structure:`);
+            core.info(`  - added: ${JSON.stringify(commit.added || [])}`);
+            core.info(`  - modified: ${JSON.stringify(commit.modified || [])}`);
+            core.info(`  - removed: ${JSON.stringify(commit.removed || [])}`);
+            const addedFiles = commit.added || [];
+            const modifiedFiles = commit.modified || [];
+            const removedFiles = commit.removed || [];
+            const totalChanges = addedFiles.length + modifiedFiles.length + removedFiles.length;
+            if (totalChanges === 0) {
+                core.warning(`⚠️ No file changes found in push payload for commit ${commit.id.substring(0, 7)}`);
+                core.warning(`This suggests the push payload is missing file change data that should be there.`);
+            }
+            else {
+                core.info(`✅ Found ${totalChanges} file changes in push payload for commit ${commit.id.substring(0, 7)}`);
             }
             return {
                 id: commit.id,
@@ -30038,10 +30029,10 @@ async function run() {
                     added: addedFiles,
                     modified: modifiedFiles,
                     removed: removedFiles,
-                    total_changes: addedFiles.length + modifiedFiles.length + removedFiles.length,
+                    total_changes: totalChanges,
                 },
             };
-        }));
+        });
         const validCommits = formattedCommits.filter((c) => c !== null);
         // Check if we have any valid commits after filtering
         if (validCommits.length === 0) {
