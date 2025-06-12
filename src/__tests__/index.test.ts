@@ -7,6 +7,7 @@ jest.mock('@actions/github', () => ({
   context: {
     repo: { owner: 'testowner', repo: 'testrepo' },
     eventName: 'push',
+    ref: 'refs/heads/main',
     payload: {
       commits: [
         {
@@ -114,6 +115,7 @@ describe('GitHub Action for buildinpublic.so', () => {
     const mockPayload = {
       repo: 'testrepo',
       owner: 'testowner',
+      branch: 'main',
       commits: [{
         id: 'abc123',
         message: 'Test commit',
@@ -194,6 +196,7 @@ describe('GitHub Action for buildinpublic.so', () => {
       const complexPayload = {
         repo: 'complex-repo',
         owner: 'testowner',
+        branch: 'main',
         commits: [
           {
             id: 'commit1',
@@ -236,6 +239,7 @@ describe('GitHub Action for buildinpublic.so', () => {
       const emptyPayload = {
         repo: 'testrepo',
         owner: 'testowner',
+        branch: 'main',
         commits: [] as any[]
       };
 
@@ -260,6 +264,7 @@ describe('GitHub Action for buildinpublic.so', () => {
       const payload = {
         repo: 'testrepo',
         owner: 'testowner',
+        branch: 'main',
         commits: [{
           id: 'large123',
           message: largeMessage,
@@ -328,6 +333,7 @@ describe('GitHub Action for buildinpublic.so', () => {
       const complexPayload = {
         repo: 'complex-repo',
         owner: 'testowner',
+        branch: 'main',
         commits: [
           {
             id: 'commit1',
@@ -370,6 +376,7 @@ describe('GitHub Action for buildinpublic.so', () => {
       const emptyPayload = {
         repo: 'testrepo',
         owner: 'testowner',
+        branch: 'main',
         commits: [] as any[]
       };
 
@@ -447,6 +454,7 @@ describe('GitHub Action for buildinpublic.so', () => {
     const mockPayload = {
       repo: 'testrepo',
       owner: 'testowner',
+      branch: 'main',
       commits: [{
         id: 'test123',
         message: 'Test commit',
