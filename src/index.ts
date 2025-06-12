@@ -7,9 +7,13 @@ interface Commit {
   message: string;
   author: { name: string; email: string };
   timestamp: string;
-  added: string[];
-  modified: string[];
-  removed: string[];
+  url: string;
+  files: {
+    added: string[];
+    modified: string[];
+    removed: string[];
+    total_changes: number;
+  };
 }
 
 /**
@@ -110,9 +114,13 @@ export async function run(): Promise<void> {
             email: commit.author.email
           },
           timestamp: commit.timestamp,
-          added: addedFiles,
-          modified: modifiedFiles,
-          removed: removedFiles
+          url: `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commit.id}`,
+          files: {
+            added: addedFiles,
+            modified: modifiedFiles,
+            removed: removedFiles,
+            total_changes: addedFiles.length + modifiedFiles.length + removedFiles.length
+          }
         };
       })
     );

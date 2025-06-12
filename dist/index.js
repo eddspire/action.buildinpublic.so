@@ -30038,9 +30038,13 @@ async function run() {
                     email: commit.author.email
                 },
                 timestamp: commit.timestamp,
-                added: addedFiles,
-                modified: modifiedFiles,
-                removed: removedFiles
+                url: `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commit.id}`,
+                files: {
+                    added: addedFiles,
+                    modified: modifiedFiles,
+                    removed: removedFiles,
+                    total_changes: addedFiles.length + modifiedFiles.length + removedFiles.length
+                }
             };
         }));
         const validCommits = formattedCommits.filter((c) => c !== null);
