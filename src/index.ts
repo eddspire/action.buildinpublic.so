@@ -56,16 +56,43 @@ export async function run(): Promise<void> {
     // Start timing for accurate execution time measurement
     const startTime = Date.now();
 
+    // Get GitHub token for API calls
+    const githubToken = core.getInput('github-token') || process.env.GITHUB_TOKEN;
+    const octokit = githubToken ? github.getOctokit(githubToken) : null;
+
     // Format commits for buildinpublic.so API with validation
-    const formattedCommits = commits
-      .map((commit: any): Commit | null => {
+    const formattedCommits = await Promise.all(
+      commits.map(async (commit: any): Promise<Commit | null> => {
         if (!commit?.id || !commit?.message || !commit?.author) {
           core.warning(`Skipping malformed commit: ${JSON.stringify(commit)}`);
           return null;
         }
-        const addedFiles = commit.added || [];
-        const modifiedFiles = commit.modified || [];
-        const removedFiles = commit.removed || [];
+
+        let addedFiles = commit.added || [];
+        let modifiedFiles = commit.modified || [];
+        let removedFiles = commit.removed || [];
+
+        // If file changes are empty and we have GitHub token, fetch from API
+        if (addedFiles.length === 0 && modifiedFiles.length === 0 && removedFiles.length === 0 && octokit) {
+          try {
+            core.info(`📡 Fetching detailed commit info for ${commit.id.substring(0, 7)} from GitHub API`);
+            const { data: commitData } = await octokit.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: commit.id,
+            });
+
+                         // Extract file changes from API response
+             if (commitData.files) {
+               addedFiles = commitData.files.filter((f: any) => f.status === 'added').map((f: any) => f.filename);
+               modifiedFiles = commitData.files.filter((f: any) => f.status === 'modified').map((f: any) => f.filename);
+               removedFiles = commitData.files.filter((f: any) => f.status === 'removed').map((f: any) => f.filename);
+               core.info(`✅ Found ${addedFiles.length + modifiedFiles.length + removedFiles.length} file changes via API`);
+             }
+          } catch (error) {
+            core.warning(`⚠️ Failed to fetch commit details from API: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
+        }
         
         return {
           id: commit.id,
@@ -85,24 +112,26 @@ export async function run(): Promise<void> {
           },
         };
       })
-      .filter((c: Commit | null): c is Commit => c !== null);
+    );
+
+    const validCommits = formattedCommits.filter((c: Commit | null): c is Commit => c !== null);
 
     // Check if we have any valid commits after filtering
-    if (formattedCommits.length === 0) {
+    if (validCommits.length === 0) {
       core.warning('No valid commits found after validation');
       core.setOutput('commits', 0);
       return;
     }
 
-    if (formattedCommits.length !== commits.length) {
-      core.warning(`Filtered out ${commits.length - formattedCommits.length} malformed commits`);
+    if (validCommits.length !== commits.length) {
+      core.warning(`Filtered out ${commits.length - validCommits.length} malformed commits`);
     }
 
     // Prepare buildinpublic.so API payload (job_minutes calculated just before sending)
     const apiPayload = {
       repo: context.repo.repo,
       owner: context.repo.owner,
-      commits: formattedCommits,
+      commits: validCommits,
     };
 
     // Send to buildinpublic.so API with retry logic
@@ -111,11 +140,11 @@ export async function run(): Promise<void> {
     // Calculate final execution time for logging
     const executionTime = Math.max(1, Math.ceil((Date.now() - startTime) / 1000 / 60));
     
-    core.info(`✅ Successfully processed ${formattedCommits.length} commits`);
+    core.info(`✅ Successfully processed ${validCommits.length} commits`);
     core.info(`⏱️ Execution time: ${executionTime} minutes`);
     
     // Set outputs
-    core.setOutput('commits', formattedCommits.length);
+    core.setOutput('commits', validCommits.length);
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
