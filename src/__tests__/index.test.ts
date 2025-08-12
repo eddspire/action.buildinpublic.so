@@ -1,6 +1,10 @@
 import * as core from '@actions/core';
 import { run, sendToBuildinpublicSo } from '../index';
 
+// Use the current Vercel ingest URL everywhere in tests
+const EXPECTED_INGEST_URL =
+  'https://buildinpublic-so-test-dev-ed.vercel.app/api/github-actions/ingest';
+
 // Mock the GitHub context and core modules
 jest.mock('@actions/core');
 jest.mock('@actions/github', () => ({
@@ -23,13 +27,13 @@ jest.mock('@actions/github', () => ({
 }));
 
 // Mock fetch globally
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
+const mockFetch = jest.fn() as jest.Mock;
+global.fetch = mockFetch as unknown as typeof fetch;
 
 describe('GitHub Action for buildinpublic.so', () => {
   // Set longer timeout for tests with retry mechanisms
   jest.setTimeout(60000); // 60 seconds
-  
+
   // Cast mocks to jest.MockedFunction for better TypeScript support
   const mockedCore = {
     getInput: core.getInput as jest.MockedFunction<typeof core.getInput>,
@@ -37,13 +41,13 @@ describe('GitHub Action for buildinpublic.so', () => {
     warning: core.warning as jest.MockedFunction<typeof core.warning>,
     error: core.error as jest.MockedFunction<typeof core.error>,
     setOutput: core.setOutput as jest.MockedFunction<typeof core.setOutput>,
-    setFailed: core.setFailed as jest.MockedFunction<typeof core.setFailed>,
+    setFailed: core.setFailed as jest.MockedFunction<typeof core.setFailed>
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockFetch.mockClear();
-    
+
     // Default mock setup
     mockedCore.getInput.mockImplementation((name: string) => {
       if (name === 'api-token') return 'test-api-token-secret';
@@ -65,7 +69,7 @@ describe('GitHub Action for buildinpublic.so', () => {
       // Verify API was called with correct data
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://buildinpublic-so-test-dev-ed.vercel.app/api/github-actions/ingest',
+        EXPECTED_INGEST_URL,
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -96,8 +100,6 @@ describe('GitHub Action for buildinpublic.so', () => {
     });
 
     test('verifies basic functionality works', async () => {
-      // Just verify the test infrastructure is working
-      // The message truncation is tested indirectly via sendToBuildinpublicSo
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -116,13 +118,15 @@ describe('GitHub Action for buildinpublic.so', () => {
       repo: 'testrepo',
       owner: 'testowner',
       branch: 'main',
-      commits: [{
-        id: 'abc123',
-        message: 'Test commit',
-        author: { name: 'Test User', email: 'test@example.com' },
-        timestamp: '2023-01-01T00:00:00Z',
-        url: 'https://github.com/testowner/testrepo/commit/abc123'
-      }]
+      commits: [
+        {
+          id: 'abc123',
+          message: 'Test commit',
+          author: { name: 'Test User', email: 'test@example.com' },
+          timestamp: '2023-01-01T00:00:00Z',
+          url: 'https://github.com/testowner/testrepo/commit/abc123'
+        }
+      ]
     };
 
     test('successfully sends payload on first attempt', async () => {
@@ -137,7 +141,7 @@ describe('GitHub Action for buildinpublic.so', () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://buildinpublic-so-test-dev-ed.vercel.app/api/github-actions/ingest',
+        EXPECTED_INGEST_URL,
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -178,9 +182,9 @@ describe('GitHub Action for buildinpublic.so', () => {
       await sendToBuildinpublicSo(mockPayload, 'test-token', startTime);
 
       const fetchCall = mockFetch.mock.calls[0];
-      const headers = fetchCall[1].headers;
+      const headers = fetchCall[1].headers as Record<string, string>;
       const signature = headers['X-Hub-Signature-256'];
-      
+
       expect(signature).toMatch(/^sha256=[a-f0-9]{64}$/);
       expect(headers['Content-Type']).toBe('application/json');
       expect(headers['User-Agent']).toBe('buildinpublic.so-Action/1.0.0');
@@ -220,7 +224,7 @@ describe('GitHub Action for buildinpublic.so', () => {
 
       const fetchCall = mockFetch.mock.calls[0];
       const body = JSON.parse(fetchCall[1].body);
-      
+
       expect(body.repo).toBe('complex-repo');
       expect(body.owner).toBe('testowner');
       expect(body.commits).toHaveLength(2);
@@ -248,7 +252,7 @@ describe('GitHub Action for buildinpublic.so', () => {
 
       const fetchCall = mockFetch.mock.calls[0];
       const body = JSON.parse(fetchCall[1].body);
-      
+
       expect(body.commits).toHaveLength(0);
       expect(body.job_minutes).toBeGreaterThanOrEqual(1);
     });
@@ -265,13 +269,15 @@ describe('GitHub Action for buildinpublic.so', () => {
         repo: 'testrepo',
         owner: 'testowner',
         branch: 'main',
-        commits: [{
-          id: 'large123',
-          message: largeMessage,
-          author: { name: 'Test User', email: 'test@example.com' },
-          timestamp: '2023-01-01T00:00:00Z',
-          url: 'https://github.com/testowner/testrepo/commit/large123'
-        }]
+        commits: [
+          {
+            id: 'large123',
+            message: largeMessage,
+            author: { name: 'Test User', email: 'test@example.com' },
+            timestamp: '2023-01-01T00:00:00Z',
+            url: 'https://github.com/testowner/testrepo/commit/large123'
+          }
+        ]
       };
 
       const startTime = Date.now();
@@ -279,12 +285,12 @@ describe('GitHub Action for buildinpublic.so', () => {
 
       const fetchCall = mockFetch.mock.calls[0];
       const body = JSON.parse(fetchCall[1].body);
-      
+
       expect(body.commits[0].message).toBe(largeMessage);
       expect(body.commits[0].message.length).toBeLessThanOrEqual(10000);
     });
 
-    test('should send payload to buildinpublic.so API with correct data', async () => {
+    test('should send payload to Vercel ingest API with correct data', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -296,7 +302,7 @@ describe('GitHub Action for buildinpublic.so', () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://buildinpublic.so/api/github-actions/ingest',
+        EXPECTED_INGEST_URL,
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -316,9 +322,10 @@ describe('GitHub Action for buildinpublic.so', () => {
       mockFetch.mockResolvedValueOnce(new Error('Network error'));
 
       const startTime = Date.now();
-      
-      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime))
-        .rejects.toThrow('Failed after 3 attempts');
+
+      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime)).rejects.toThrow(
+        'Failed after 3 attempts'
+      );
 
       expect(mockFetch).toHaveBeenCalledTimes(3);
     });
@@ -357,7 +364,7 @@ describe('GitHub Action for buildinpublic.so', () => {
 
       const fetchCall = mockFetch.mock.calls[0];
       const body = JSON.parse(fetchCall[1].body);
-      
+
       expect(body.repo).toBe('complex-repo');
       expect(body.owner).toBe('testowner');
       expect(body.commits).toHaveLength(2);
@@ -385,7 +392,7 @@ describe('GitHub Action for buildinpublic.so', () => {
 
       const fetchCall = mockFetch.mock.calls[0];
       const body = JSON.parse(fetchCall[1].body);
-      
+
       expect(body.commits).toHaveLength(0);
       expect(body.job_minutes).toBeGreaterThanOrEqual(1);
     });
@@ -402,7 +409,7 @@ describe('GitHub Action for buildinpublic.so', () => {
 
       const fetchCall = mockFetch.mock.calls[0];
       const body = JSON.parse(fetchCall[1].body);
-      
+
       expect(body.job_minutes).toBeGreaterThanOrEqual(1);
     });
 
@@ -412,9 +419,10 @@ describe('GitHub Action for buildinpublic.so', () => {
       mockFetch.mockResolvedValueOnce(new Error('Network error'));
 
       const startTime = Date.now();
-      
-      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime))
-        .rejects.toThrow('Failed after 3 attempts');
+
+      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime)).rejects.toThrow(
+        'Failed after 3 attempts'
+      );
 
       expect(mockFetch).toHaveBeenCalledTimes(3);
     });
@@ -427,9 +435,10 @@ describe('GitHub Action for buildinpublic.so', () => {
       });
 
       const startTime = Date.now();
-      
-      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime))
-        .rejects.toThrow('API responded with non-JSON');
+
+      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime)).rejects.toThrow(
+        'API responded with non-JSON'
+      );
 
       expect(mockedCore.warning).toHaveBeenCalledWith(
         expect.stringContaining('API responded with non-JSON payload')
@@ -442,9 +451,10 @@ describe('GitHub Action for buildinpublic.so', () => {
       mockFetch.mockResolvedValueOnce(new Error('Network error'));
 
       const startTime = Date.now();
-      
-      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime))
-        .rejects.toThrow('Failed after 3 attempts');
+
+      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime)).rejects.toThrow(
+        'Failed after 3 attempts'
+      );
 
       expect(mockFetch).toHaveBeenCalledTimes(3);
     });
@@ -455,26 +465,28 @@ describe('GitHub Action for buildinpublic.so', () => {
       repo: 'testrepo',
       owner: 'testowner',
       branch: 'main',
-      commits: [{
-        id: 'test123',
-        message: 'Test commit',
-        author: { name: 'Test', email: 'test@example.com' },
-        timestamp: '2023-01-01T00:00:00Z',
-        url: 'https://github.com/testowner/testrepo/commit/test123'
-      }]
+      commits: [
+        {
+          id: 'test123',
+          message: 'Test commit',
+          author: { name: 'Test', email: 'test@example.com' },
+          timestamp: '2023-01-01T00:00:00Z',
+          url: 'https://github.com/testowner/testrepo/commit/test123'
+        }
+      ]
     };
 
     test('handles network errors with retries', async () => {
-      // Mock 3 failures (should retry and then fail)
       mockFetch
         .mockRejectedValueOnce(new Error('Network error'))
         .mockRejectedValueOnce(new Error('Network error'))
         .mockRejectedValueOnce(new Error('Network error'));
 
       const startTime = Date.now();
-      
-      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime))
-        .rejects.toThrow('Failed after 3 attempts');
+
+      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime)).rejects.toThrow(
+        'Failed after 3 attempts'
+      );
 
       expect(mockFetch).toHaveBeenCalledTimes(3);
     });
@@ -488,9 +500,10 @@ describe('GitHub Action for buildinpublic.so', () => {
       });
 
       const startTime = Date.now();
-      
-      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime))
-        .rejects.toThrow('Failed after 3 attempts');
+
+      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime)).rejects.toThrow(
+        'Failed after 3 attempts'
+      );
 
       expect(mockFetch).toHaveBeenCalledTimes(3);
       expect(mockedCore.warning).toHaveBeenCalledWith(
@@ -506,13 +519,14 @@ describe('GitHub Action for buildinpublic.so', () => {
       });
 
       const startTime = Date.now();
-      
-      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime))
-        .rejects.toThrow('Failed after 3 attempts');
+
+      await expect(sendToBuildinpublicSo(mockPayload, 'test-token', startTime)).rejects.toThrow(
+        'Failed after 3 attempts'
+      );
 
       expect(mockedCore.warning).toHaveBeenCalledWith(
         expect.stringContaining('API responded with non-JSON payload')
       );
     });
   });
-}); 
+});
