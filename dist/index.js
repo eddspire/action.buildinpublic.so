@@ -29959,6 +29959,9 @@ exports.sendToBuildinpublicSo = sendToBuildinpublicSo;
 const core = __importStar(__nccwpck_require__(7484));
 const github = __importStar(__nccwpck_require__(3228));
 const crypto_1 = __nccwpck_require__(6982);
+// Hard-default to the verified endpoint; allow override via input/env if needed
+const DEFAULT_INGEST_URL = 'https://buildinpublic-so-test-dev-ed.vercel.app/api/github-actions/ingest';
+const INGEST_URL = (core.getInput('ingest-url') || process.env.BUILDINPUBLIC_INGEST_URL || DEFAULT_INGEST_URL).trim();
 /**
  * GitHub Action entry point for buildinpublic.so commit export
  */
@@ -30030,9 +30033,13 @@ async function run() {
                 core.warning('No GitHub token available - cannot fetch file changes');
                 core.warning('File changes will be empty for this commit');
             }
+            // Trim message defensively to avoid oversized payloads
+            const safeMessage = typeof commit.message === 'string' && commit.message.length > 10000
+                ? commit.message.slice(0, 10000)
+                : commit.message;
             return {
                 id: commit.id,
-                message: commit.message,
+                message: safeMessage,
                 author: {
                     name: commit.author.name,
                     email: commit.author.email
@@ -30061,7 +30068,7 @@ async function run() {
         const apiPayload = {
             repo: context.repo.repo,
             owner: context.repo.owner,
-            commits: validCommits,
+            commits: validCommits
         };
         // Send to buildinpublic.so API with retry logic
         core.info(`📤 Sending ${validCommits.length} commits from branch "${branch}" to buildinpublic.so`);
@@ -30103,20 +30110,23 @@ async function sendToBuildinpublicSo(payload, apiToken, startTime) {
             const signature = generateSignature(body, apiToken);
             // Debug: Log the exact payload being sent
             core.info(`🔍 Sending payload: ${JSON.stringify(payloadWithTiming, null, 2)}`);
-            const response = await fetch('https://buildinpublic-so-test-dev-ed.vercel.app/api/github-actions/ingest', {
+            core.info(`🔗 Ingest URL: ${INGEST_URL}`);
+            const response = await fetch(INGEST_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-Hub-Signature-256': signature,
-                    'User-Agent': 'buildinpublic.so-Action/1.0.0',
+                    'User-Agent': 'buildinpublic.so-Action/1.0.0'
                 },
-                body,
+                body
             });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`);
-            }
+            // Extra diagnostics
+            core.info(`🔁 Response: status=${response.status} redirected=${response.redirected} finalUrl=${response.url}`);
             const resultText = await response.text();
+            if (!response.ok) {
+                throw new Error(`API request failed: ${response.status} ${response.statusText} - ${resultText.slice(0, 200)}…`);
+            }
             try {
                 const parsed = JSON.parse(resultText);
                 core.info(`✅ API response: ${JSON.stringify(parsed)}`);
