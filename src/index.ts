@@ -195,7 +195,7 @@ export async function sendToBuildinpublicSo(payload: any, apiToken: string, star
       // Debug: Log the exact payload being sent
       core.info(`🔍 Sending payload: ${JSON.stringify(payloadWithTiming, null, 2)}`);
       
-      const response = await fetch('https:/buildinpublic-so.vercel.app/api/github-actions/ingest', {
+      const response = await fetch('https://buildinpublic-so.vercel.app/api/github-actions/ingest', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
