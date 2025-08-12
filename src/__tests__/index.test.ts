@@ -65,7 +65,7 @@ describe('GitHub Action for buildinpublic.so', () => {
       // Verify API was called with correct data
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://buildinpublic.so/api/github-actions/ingest',
+        'https://buildinpublic-so-test-dev-ed.vercel.app/api/github-actions/ingest',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -137,7 +137,7 @@ describe('GitHub Action for buildinpublic.so', () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://buildinpublic.so/api/github-actions/ingest',
+        'https://buildinpublic-so-test-dev-ed.vercel.app/api/github-actions/ingest',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
