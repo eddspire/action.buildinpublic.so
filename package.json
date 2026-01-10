@@ -1,7 +1,7 @@
 {
-  "name": "action.shiploud.so",
+  "name": "action.buildinpublic.so",
   "version": "1.0.1",
-  "description": "GitHub Action to export commit data to shiploud.so",
+  "description": "GitHub Action to export commit data to buildinpublic.so",
   "main": "dist/index.js",
   "scripts": {
     "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
@@ -11,20 +11,20 @@
   },
   "repository": {
     "type": "git",
-  "url": "https://github.com/eddspire/action.shiploud.so"
+  "url": "https://github.com/eddspire/action.buildinpublic.so"
   },
   "keywords": [
     "github-action",
-    "shiploud.so",
+    "buildinpublic.so",
     "commits",
     "automation"
   ],
-  "author": "shiploud.so",
+  "author": "buildinpublic.so",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/eddspire/action.shiploud.so/issues"
+    "url": "https://github.com/eddspire/action.buildinpublic.so/issues"
   },
-  "homepage": "https://github.com/eddspire/action.shiploud.so#readme",
+  "homepage": "https://github.com/eddspire/action.buildinpublic.so#readme",
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@actions/github": "^6.0.0"

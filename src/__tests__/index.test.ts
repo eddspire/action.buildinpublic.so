@@ -3,7 +3,7 @@ import { run, sendToBuildinpublicSo } from '../index';
 
 // Use the current production ingest URL everywhere in tests
 const EXPECTED_INGEST_URL =
-  'https://shiploud.so/api/github-actions/ingest';
+  'https://buildinpublic.so/api/github-actions/ingest';
 
 // Mock the GitHub context and core modules
 jest.mock('@actions/core');
@@ -30,7 +30,7 @@ jest.mock('@actions/github', () => ({
 const mockFetch = jest.fn() as jest.Mock;
 global.fetch = mockFetch as unknown as typeof fetch;
 
-describe('GitHub Action for shiploud.so', () => {
+describe('GitHub Action for buildinpublic.so', () => {
   // Set longer timeout for tests with retry mechanisms
   jest.setTimeout(60000); // 60 seconds
 
@@ -75,7 +75,7 @@ describe('GitHub Action for shiploud.so', () => {
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
             'X-Hub-Signature-256': expect.stringMatching(/^sha256=[a-f0-9]{64}$/),
-            'User-Agent': 'shiploud.so-Action/1.0.1'
+            'User-Agent': 'buildinpublic.so-Action/1.0.1'
           }),
           body: expect.stringContaining('"repo":"testrepo"')
         })
@@ -147,7 +147,7 @@ describe('GitHub Action for shiploud.so', () => {
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
             'X-Hub-Signature-256': expect.stringMatching(/^sha256=[a-f0-9]{64}$/),
-            'User-Agent': 'shiploud.so-Action/1.0.1'
+            'User-Agent': 'buildinpublic.so-Action/1.0.1'
           }),
           body: expect.stringContaining('"repo":"testrepo"')
         })
@@ -188,7 +188,7 @@ describe('GitHub Action for shiploud.so', () => {
 
       expect(signature).toMatch(/^sha256=[a-f0-9]{64}$/);
       expect(headers['Content-Type']).toBe('application/json');
-      expect(headers['User-Agent']).toBe('shiploud.so-Action/1.0.1');
+      expect(headers['User-Agent']).toBe('buildinpublic.so-Action/1.0.1');
     });
 
     test('validates payload structure in request body', async () => {
@@ -309,7 +309,7 @@ describe('GitHub Action for shiploud.so', () => {
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
             'X-Hub-Signature-256': expect.stringMatching(/^sha256=[a-f0-9]{64}$/),
-            'User-Agent': 'shiploud.so-Action/1.0.1'
+            'User-Agent': 'buildinpublic.so-Action/1.0.1'
           }),
           body: expect.stringContaining('"repo":"testrepo"')
         })

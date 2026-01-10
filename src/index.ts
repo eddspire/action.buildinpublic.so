@@ -19,20 +19,19 @@ interface Commit {
 }
 
 // Hard-default to production ingest endpoint; allow override via input/env if needed
-const DEFAULT_INGEST_URL = 'https://shiploud.so/api/github-actions/ingest';
+const DEFAULT_INGEST_URL = 'https://buildinpublic.so/api/github-actions/ingest';
 const INGEST_URL = (
   core.getInput('ingest-url') ||
-  process.env.SHIPLOUD_INGEST_URL ||
-  process.env.BUILDINPUBLIC_INGEST_URL || // backward compatibility
+  process.env.BUILDINPUBLIC_INGEST_URL ||
   DEFAULT_INGEST_URL
 ).trim();
 
 /**
- * GitHub Action entry point for shiploud.so commit export
+ * GitHub Action entry point for buildinpublic.so commit export
  */
 export async function run(): Promise<void> {
   try {
-    core.info('🚀 shiploud.so Action Export started');
+    core.info('🚀 buildinpublic.so Action Export started');
 
     // Get action inputs
     const apiToken = core.getInput('api-token', { required: true }).trim();
@@ -74,7 +73,7 @@ export async function run(): Promise<void> {
     const githubToken = core.getInput('github-token') || process.env.GITHUB_TOKEN;
     const octokit = githubToken ? github.getOctokit(githubToken) : null;
 
-    // Format commits for shiploud.so API with validation
+    // Format commits for buildinpublic.so API with validation
     const formattedCommits = await Promise.all(
       commits.map(async (commit: any): Promise<Commit | null> => {
         if (!commit?.id || !commit?.message || !commit?.author) {
@@ -159,15 +158,15 @@ export async function run(): Promise<void> {
       core.warning(`Filtered out ${commits.length - validCommits.length} malformed commits`);
     }
 
-    // Prepare shiploud.so API payload
+    // Prepare buildinpublic.so API payload
     const apiPayload = {
       repo: context.repo.repo,
       owner: context.repo.owner,
       commits: validCommits
     };
 
-    // Send to shiploud.so API with retry logic
-    core.info(`📤 Sending ${validCommits.length} commits from branch "${branch}" to shiploud.so`);
+    // Send to buildinpublic.so API with retry logic
+    core.info(`📤 Sending ${validCommits.length} commits from branch "${branch}" to buildinpublic.so`);
     await sendToBuildinpublicSo(apiPayload, apiToken, startTime);
 
     core.info(`✅ Successfully processed ${validCommits.length} commits`);
@@ -192,7 +191,7 @@ function generateSignature(payload: string, secret: string): string {
 }
 
 /**
- * Send payload to shiploud.so API with exponential backoff retry logic
+ * Send payload to buildinpublic.so API with exponential backoff retry logic
  */
 export async function sendToBuildinpublicSo(payload: any, apiToken: string, startTime: number): Promise<void> {
   const maxRetries = 5;
@@ -200,7 +199,7 @@ export async function sendToBuildinpublicSo(payload: any, apiToken: string, star
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      core.info(`📡 Sending to shiploud.so API (attempt ${attempt}/${maxRetries})`);
+      core.info(`📡 Sending to buildinpublic.so API (attempt ${attempt}/${maxRetries})`);
 
       const body = JSON.stringify(payload);
       const signature = generateSignature(body, apiToken);
@@ -212,7 +211,7 @@ export async function sendToBuildinpublicSo(payload: any, apiToken: string, star
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'X-Hub-Signature-256': signature,
-          'User-Agent': 'shiploud.so-Action/1.0.1'
+          'User-Agent': 'buildinpublic.so-Action/1.0.1'
         },
         body
       });

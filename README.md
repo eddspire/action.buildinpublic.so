@@ -1,7 +1,7 @@
 # Turn Every Commit Into Your Success Story
 
-[![GitHub marketplace](https://img.shields.io/badge/marketplace-shiploud.so--action--export-blue?logo=github)](https://github.com/marketplace/actions/shiploud.so-action-export)
-[![CI](https://github.com/eddspire/action.shiploud.so/actions/workflows/ci.yml/badge.svg)](https://github.com/eddspire/action.shiploud.so/actions/workflows/ci.yml)
+[![GitHub marketplace](https://img.shields.io/badge/marketplace-buildinpublic.so--action--export-blue?logo=github)](https://github.com/marketplace/actions/buildinpublic.so-action-export)
+[![CI](https://github.com/eddspire/action.buildinpublic.so/actions/workflows/ci.yml/badge.svg)](https://github.com/eddspire/action.buildinpublic.so/actions/workflows/ci.yml)
 
 **Stop hiding your best stories in git logs.** Every commit is a chapter in your entrepreneurial journey—BuildInPublic.so helps the world read it.
 
@@ -33,10 +33,10 @@ Beautiful cards showcasing your real work, real progress, and real expertise.
 
 ### 1. **Add the Magic** ✨
 
-Create `.github/workflows/shiploud.yml` in your repo:
+Create `.github/workflows/buildinpublic.yml` in your repo:
 
 ```yaml
-name: "ShipLoud - Automatic Story Creation"
+name: "BuildInPublic - Automatic Story Creation"
 on:
   push:
     branches: [ main, master ]
@@ -46,17 +46,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Transform commits into stories
-        uses: eddspire/action.shiploud.so@v1.0.2
+        uses: eddspire/action.buildinpublic.so@v1.0.2
         with:
-          api-token: ${{ secrets.SHIPLOUD_API_TOKEN }}
+          api-token: ${{ secrets.BUILDINPUBLIC_API_TOKEN }}
 ```
 
 ### 2. **Connect Your Story** 🔗
 
-1. Visit [shiploud.so/dashboard](https://shiploud.so/dashboard)
+1. Visit [buildinpublic.so/dashboard](https://buildinpublic.so/dashboard)
 2. Connect your repository (we only need commit metadata)
 3. Copy your unique API token
-4. Add it as `SHIPLOUD_API_TOKEN` in your repository secrets
+4. Add it as `BUILDINPUBLIC_API_TOKEN` in your repository secrets
 
 ### 3. **Watch Your Audience Grow** 📈
 
@@ -72,7 +72,7 @@ Push your next commit and watch it transform into a beautiful, shareable story c
 ❌ Amazing commits buried in git logs  
 ❌ Building in isolation  
 
-### With ShipLoud.so:
+### With BuildInPublic.so:
 ✅ Every commit becomes content  
 ✅ Automatic, authentic storytelling  
 ✅ Growing audience sees your real journey  
@@ -108,10 +108,10 @@ on:
 
 ### Conditional Story Creation
 ```yaml
-- uses: eddspire/action.shiploud.so@v1.0.2
+- uses: eddspire/action.buildinpublic.so@v1.0.2
   if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip-story]')
   with:
-    api-token: ${{ secrets.SHIPLOUD_API_TOKEN }}
+    api-token: ${{ secrets.BUILDINPUBLIC_API_TOKEN }}
 ```
 
 ---
@@ -120,19 +120,18 @@ on:
 
 ### **Action Not Running?**
 - Double-check `.github/workflows/` path
-- Verify `SHIPLOUD_API_TOKEN` in repository secrets
+- Verify `BUILDINPUBLIC_API_TOKEN` in repository secrets
 - Ensure repository is connected in your dashboard
 
 ### **Stories Not Appearing?**
 - Check action logs in your repository's Actions tab
-- Confirm your shiploud.so account setup
+- Confirm your buildinpublic.so account setup
 - Verify API token is still valid
 
 ### **Need Help Building Your Story?**
 We're here for you:
-- 📚 [Complete Documentation](https://shiploud.so/docs)
-- 🐛 [Report Issues](https://github.com/eddspire/action.shiploud.so/issues)
-- 💬 [Join Our Community](https://discord.gg/shiploud)
+- 📚 [Complete Documentation](https://buildinpublic.so/docs)
+- 🐛 [Report Issues](https://github.com/eddspire/action.buildinpublic.so/issues)
 
 ---
 
@@ -140,7 +139,7 @@ We're here for you:
 
 **Your next commit could be your breakthrough moment.**
 
-[**Start Shipping Loud →**](https://shiploud.so)
+[**Start Building In Public →**](https://buildinpublic.so)
 
 ---
 

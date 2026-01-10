@@ -1,6 +1,6 @@
-name: 'shiploud.so Action Export'
-description: 'Automatically export your commit history to shiploud.so for instant, beautiful developer cards'
-author: 'shiploud.so'
+name: 'buildinpublic.so Action Export'
+description: 'Automatically export your commit history to buildinpublic.so for instant, beautiful developer cards'
+author: 'buildinpublic.so'
 
 branding:
   icon: 'git-commit'
@@ -8,13 +8,13 @@ branding:
 
 inputs:
   api-token:
-    description: 'shiploud.so API token from your dashboard'
+    description: 'buildinpublic.so API token from your dashboard'
     required: true
   github-token:
     description: 'GitHub token for API access (defaults to GITHUB_TOKEN)'
     required: false
   ingest-url:
-    description: 'Override ingest endpoint (defaults to SHIPLOUD_INGEST_URL or production URL)'
+    description: 'Override ingest endpoint (defaults to BUILDINPUBLIC_INGEST_URL or production URL)'
     required: false
 
 outputs:
